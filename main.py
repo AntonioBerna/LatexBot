@@ -26,9 +26,9 @@ def main():
                     try:
                         message_text_splitted = message_text[0:6].split()
                         message_text_splitted.append(message_text[7:])
-                        print(message_text_splitted)
+                        print("Latex Command: ", message_text_splitted)
 
-                        if len(message_text_splitted) == 2 and message_text_splitted[1] != "":
+                        if checkMessage(message_text_splitted):
                             client.sendMessage(chat_id, "🔥Attendi qualche secondo...🔥")
                             client.sendPhoto(chat_id, scraper.scrape(message_text_splitted[1]))
                         else:
@@ -44,6 +44,10 @@ def main():
 
             else:
                 client.sendMessage(chat_id, "Non sei abilitato ad utilizzare questo bot!🔥")
+
+
+def checkMessage(message_text_splitted):
+    return len(message_text_splitted) == 2 and message_text_splitted[1] != ""
 
 
 if __name__ == '__main__':

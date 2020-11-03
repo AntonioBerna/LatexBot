@@ -1,40 +1,16 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-import time
-# import os
+import requests
 
 
 class Scraper:
-    options = Options()
-    # options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    options.add_argument("--headless")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--no-sandbox")
 
     def __init__(self):
-        self.browser = webdriver.Chrome("/Users/clevercode/Desktop/LatexBot/chromedriver", options=self.options)
-        # self.browser = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=self.options)
-        self.url = "http://www.sciweavers.org/free-online-latex-equation-editor"
+        self.url = "https://latex2image.joeraut.com/"
 
-    def scrape(self, text):
-        try:
-            self.browser.get(self.url)
-            print("Scraping...")
-            self.browser.find_element_by_id("texEqnEditor").send_keys(text)
-            time.sleep(1)
-            self.browser.find_element_by_xpath("//select[@name='eq_font']/option[text()='78']").click()
-            time.sleep(1)
-            self.browser.find_element_by_xpath("//select[@name='eq_imformat']/option[text()='PNG']").click()
-            time.sleep(1)
-            self.browser.find_element_by_id("submit_tex2img").click()
-            time.sleep(10)
-            img_url = self.browser.find_element_by_xpath("//div[@id='iImgLoader']/img").get_attribute("src")
-            print(img_url)
-            self.browser.quit()
-            print("Finish.")
-            return img_url
-        except Exception as e:
-            print("Something Went Wrong...", e)
+    def scrape(self, latex):
+        print("Scraping...")
+        img_url = requests.post(self.url + "convert", data={"latexInput": latex, "outputFormat": "PNG", "outputScale": "500%"}).json()["imageURL"]
+        print("Finish.")
+        return self.url + img_url
 
 
 # scraper = Scraper()
