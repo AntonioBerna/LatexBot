@@ -1,5 +1,9 @@
 {
-  "token": "",
-  "admins": ["CleverCode"],
-  "description": "@LatextBot ti permetterà di convertire il linguaggio Latex in un'immagine😎🔥"
+  "token": "1316851192:AAHQvHDpwkBaDBu9f9wMACNUfOyzRZsz0ag",
+  "admins": [
+    "CleverCode"
+  ],
+  "description": "@LatextBot ti permetter\u00e0 di convertire il linguaggio Latex in un'immagine\ud83d\ude0e\ud83d\udd25",
+  "developer": "\ud83d\udd25Informazioni Sviluppatore\ud83d\udd25\n\nTelegram: @CleverCode\nYoutube: https://www.youtube.com/c/CleverCode\nInstagram: https://www.instagram.com/clever_code/\nGithub: https://github.com/AntonioBerna",
+  "helper": "Ecco alcuni esempi di utilizzo corretto di @LatextBot \ud83d\udd25:\n\n1) /latex \\int x dx\n2) /latex \\int_a^b f(x) dx = F(b) - F(a)\n3) /latex \\frac{1}{x^2}\n\nBene, ora riprova, altrimenti contatta lo sviluppatore /sviluppatore\ud83d\ude0e\ud83d\udd25"
 }

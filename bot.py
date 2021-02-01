@@ -1,70 +1,109 @@
-import requests
+from TelegramBot import Bot
+import json
+import time
 
 
-class Bot:
-    offset = 0
+def main():
+    config = json.load(open("config.json"))
+    client = Bot(config["token"], config["admins"])
+    update_id = client.latestUpdate()
 
-    def __init__(self, token: str, admins: list):
-        self.api_url = f'https://api.telegram.org/bot{token}/'
-        self.admins = admins
+    print("Bot in esecuzione.")
+    time.sleep(5)
+    while True:
+        new_id = client.latestUpdate()
+        if new_id != update_id:
+            update_id = new_id
+            message_text = client.getMessageText(new_id)
+            chat_id = client.getChatId(new_id)
+            username = client.getUserName(new_id)
 
-    def status(self, update_id):
-        r = requests.get(f"{self.api_url}getUpdates").json()
-        results = r["result"]
-        for result in results:
-            if result["update_id"] == update_id:
-                return result
+            client.addUser(username)
 
-    def getChatId(self, update_id):
-        try:
-            update = self.status(update_id)
-            return update["message"]["chat"]["id"]
-        except KeyError:
-            return None
+            if client.isAdmin(new_id):
+                if message_text == "/start":
+                    client.sendMessage(chat_id, f'Ciao {username}, {config["description"]}')
 
-    def getMessageText(self, update_id):
-        try:
-            update = self.status(update_id)
-            return update["message"]["text"]
-        except KeyError:
-            return None
+                if message_text.startswith("/latex"):
+                    try:
+                        message_text_splitted = message_text[0:6].split()
+                        message_text_splitted.append(message_text[7:])
+                        print("Latex Command: ", message_text_splitted)
 
-    def getUserName(self, update_id):
-        try:
-            update = self.status(update_id)
-            return update["message"]["chat"]["username"]
-        except KeyError:
-            return None
+                        if len(message_text_splitted) == 2 and message_text_splitted[1] != "":
+                            client.sendMessage(chat_id, "🔥Attendi qualche secondo...🔥")
+                            client.sendPhoto(chat_id, client.scrape(message_text_splitted[1]))
+                        else:
+                            client.sendMessage(chat_id, "Il comando è stato utilizzato in modo errato!🔥\nSe hai bisogno di aiuto digita /help")
+                    except:
+                        pass
 
-    def latestUpdate(self):
-        try:
-            r = requests.get(f"{self.api_url}getUpdates", params={"offset": self.offset}).json()
-            if len(r["result"]) == 0:
-                return 0
-            update_id = r["result"][len(r["result"])-1]["update_id"]
-            self.offset = update_id - 1
-            return update_id
-        except KeyError:
-            return None
+                if message_text == "/sviluppatore":
+                    client.sendMessage(chat_id, config["developer"])
 
-    def isAdmin(self, update_id):
-        username = self.getUserName(update_id)
-        if username in self.admins:
-            return True
-        return False
+                if message_text == "/help":
+                    client.sendMessage(chat_id, config["helper"])
 
-    def sendMessage(self, chat_id, messageText):
-        payload = {
-            "chat_id": chat_id,
-            "parse_mode": "HTML",
-            "text": messageText,
-        }
-        requests.post(f'{self.api_url}sendMessage', params=payload)
+                if username == config["admins"][0]:  # CleverCode
+                    if message_text.startswith("/aggiungi_admin"):
+                        try:
+                            message_text_splitted = message_text.split()
+                            if len(message_text_splitted) == 2:
+                                client.addAdmin(message_text_splitted[1])
+                                client.sendMessage(chat_id, f"L'admin {message_text_splitted[1]} è stato aggiunto.")
+                                config = json.load(open("config.json"))
+                            else:
+                                client.sendMessage(chat_id, "Il comando è stato utilizzato in maniera errata.")
+                        except Exception as e:
+                            print(f"Il Bot ha generato il seguente errore:\n{e}")
 
-    def sendPhoto(self, chat_id, url):
-        payload = {
-            "chat_id": chat_id,
-            "parse_mode": "HTML",
-            "photo": url
-        }
-        requests.post(f'{self.api_url}sendPhoto', params=payload)
+                    if message_text.startswith("/rimuovi_admin"):
+                        try:
+                            message_text_splitted = message_text.split()
+                            if len(message_text_splitted) == 2:
+                                if client.removeAdmin(message_text_splitted[1]):
+                                    client.sendMessage(chat_id, f"L'admin {message_text_splitted[1]} è stato rimosso.")
+                                    config = json.load(open("config.json"))
+                                else:
+                                    client.sendMessage(chat_id, "Nessun admin trovato con questo username.")
+                            else:
+                                client.sendMessage(chat_id, "Il comando è stato utilizzato in maniera errata.")
+                        except Exception as e:
+                            print(f"Il Bot ha generato il seguente errore:\n{e}")
+
+                    if message_text == "/lista_admin":
+                        try:
+                            config = json.load(open("config.json"))
+
+                            if config["admins"]:
+                                message = "Lista Admins:"
+                                count_admins = 0
+                                for admin in config["admins"]:
+                                    message += f"\n{count_admins + 1}) {admin}"
+                                    count_admins += 1
+                            else:
+                                message = "La lista è attualmente vuota."
+
+                            client.sendMessage(chat_id, message)
+                        except Exception as e:
+                            print(f"Il Bot ha generato il seguente errore:\n{e}")
+
+                    if message_text == "/lista_utenti":
+                        try:
+                            users = json.load(open("users.json"))
+
+                            if users["users"]:
+                                message = "Lista Utenti:"
+                                count_users = 0
+                                for user in users["users"]:
+                                    message += f"\n{count_users + 1}) {user}"
+                                    count_users += 1
+                            else:
+                                message = "La lista è attualmente vuota."
+
+                            client.sendMessage(chat_id, message)
+                        except Exception as e:
+                            print(f"Il Bot ha generato il seguente errore:\n{e}")
+
+            else:
+                client.sendMessage(chat_id, "Non sei abilitato ad utilizzare questo bot!🔥")
