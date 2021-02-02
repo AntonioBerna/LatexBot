@@ -20,6 +20,8 @@ def main():
 
             client.addUser(username)
 
+            config = json.load(open("config.json"))
+            client = Bot(config["token"], config["admins"])
             if client.isAdmin(new_id):
                 if message_text == "/start":
                     client.sendMessage(chat_id, f'Ciao {username}, {config["description"]}')
@@ -35,8 +37,8 @@ def main():
                             client.sendPhoto(chat_id, client.scrape(message_text_splitted[1]))
                         else:
                             client.sendMessage(chat_id, "Il comando è stato utilizzato in modo errato!🔥\nSe hai bisogno di aiuto digita /help")
-                    except:
-                        pass
+                    except Exception as e:
+                        print(f"Il Bot ha generato il seguente errore:\n{e}")
 
                 if message_text == "/sviluppatore":
                     client.sendMessage(chat_id, config["developer"])
@@ -51,7 +53,6 @@ def main():
                             if len(message_text_splitted) == 2:
                                 client.addAdmin(message_text_splitted[1])
                                 client.sendMessage(chat_id, f"L'admin {message_text_splitted[1]} è stato aggiunto.")
-                                config = json.load(open("config.json"))
                             else:
                                 client.sendMessage(chat_id, "Il comando è stato utilizzato in maniera errata.")
                         except Exception as e:
@@ -63,7 +64,6 @@ def main():
                             if len(message_text_splitted) == 2:
                                 if client.removeAdmin(message_text_splitted[1]):
                                     client.sendMessage(chat_id, f"L'admin {message_text_splitted[1]} è stato rimosso.")
-                                    config = json.load(open("config.json"))
                                 else:
                                     client.sendMessage(chat_id, "Nessun admin trovato con questo username.")
                             else:
