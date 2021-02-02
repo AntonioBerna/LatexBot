@@ -102,7 +102,9 @@ class Bot:
     def scrape(self, latex):
         try:
             print("Scraping...")
-            img_url = requests.post(self.url, data=json.dumps({"latexInput": "\\begin{align*}\n" + latex + "\n\\end{align*}\n", "outputFormat": "PNG", "outputScale": "500%"})).json()["imageUrl"]
+            img_url = requests.post(self.url, data=json.dumps(
+                {"latexInput": "\\begin{align*}\n" + latex + "\n\\end{align*}\n", "outputFormat": "PNG",
+                 "outputScale": "500%"})).json()["imageUrl"]
             print("Finish.")
             return img_url
         except Exception as e:
